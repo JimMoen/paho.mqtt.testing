@@ -84,22 +84,6 @@ def test_assigned_cliend_id():
   assert hasattr(connack.properties, "AssignedClientIdentifier") and connack.properties.AssignedClientIdentifier != ''
   client.disconnect()
 
-@pytest.mark.rlog_flaky
-def test_maximum_packet_size(base_wait_for, base_sleep, base_socket_timeout):
-  callback.clear()
-  # [MQTT-3.2.2-15]
-  # 1. server max packet size
-  connack = aclient.connect(host=host, port=port, cleanstart=True,
-                            socket_timeout=9 * base_socket_timeout)
-  assert hasattr(connack.properties, "MaximumPacketSize")
-  payload = b"." * (int(connack.properties.MaximumPacketSize) + 1)
-  time.sleep(2 * base_sleep)
-  aclient.publish(topics[0], payload, 0)
-  # should get back a disconnect with packet size too big
-  waitfor(callback.disconnects, 1, 9 * base_wait_for)
-  assert len(callback.disconnects) == 1
-  assert callback.disconnects[0]["reasonCode"].value == 149
-
 def test_receive_maximum():
   connect_properties = MQTTV5.Properties(MQTTV5.PacketTypes.CONNECT)
   connect_properties.ReceiveMaximum=0
