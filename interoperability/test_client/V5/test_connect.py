@@ -455,7 +455,7 @@ def test_will_interval_before_session_expire():
   will_properties = MQTTV5.Properties(MQTTV5.PacketTypes.WILLMESSAGE)
   connect_properties = MQTTV5.Properties(MQTTV5.PacketTypes.CONNECT)
 
-  will_properties.WillDelayInterval = 5 # send will message in seconds
+  will_properties.WillDelayInterval = 2 # send will message in seconds
   connect_properties.SessionExpiryInterval = 10 # session expire in seconds
 
   willmsg = b"test_no_will_interval_before_session_expire"
@@ -463,25 +463,40 @@ def test_will_interval_before_session_expire():
   callback2.clear()
 
   # if session expiry is before will delay, then session expiry is used
-  connack = aclient.connect(host=host, port=port, cleanstart=True, properties=connect_properties,
-        willProperties=will_properties, willFlag=True, willTopic=topics[0], willMessage=willmsg)
+  # however, in this test we try to test the opposite
+  connack = aclient.connect(host=host, port=port, cleanstart=True,
+        properties=connect_properties,
+        willProperties=will_properties,
+        willFlag=True,
+        willTopic=topics[0],
+        willMessage=willmsg)
   assert connack.sessionPresent == False
 
   bclient.connect(host=host, port=port, cleanstart=True)
   bclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2)]) # subscribe to will message topic
-  waitfor(callback2.subscribeds, 1, 3)
+  # expect no message is received yet
+  waitfor(callback2.subscribeds, 1, 1)
+  assert len(callback2.messages) == 0
 
+  # disconnect
   aclient.terminate()
-  time.sleep(will_properties.WillDelayInterval)
-  connack = aclient.connect(host=host, port=port, cleanstart=False, properties=connect_properties,
-      willProperties=will_properties, willFlag=True, willTopic=topics[0], willMessage=willmsg)
-  assert connack.sessionPresent == True
+  # wait for WillDelayInterval + 1 seconds, will message should be sent
+  time.sleep(will_properties.WillDelayInterval + 1)
 
-  waitfor(callback2.messages, 2, will_properties.WillDelayInterval + 1)
-  bclient.disconnect()
+  # will message should have been sent already, so we wait only for 1 message in 1 second
+  waitfor(callback2.messages, 1, 1)
   assert callback2.messages[0][0] == topics[0]
   assert callback2.messages[0][1] == willmsg
 
+  # connect again, to check if the session is still there
+  connack = aclient.connect(host=host, port=port, cleanstart=False,
+        properties=connect_properties,
+        willProperties=will_properties,
+        willFlag=True,
+        willTopic="t/random/will",
+        willMessage=willmsg)
+  # assert that the session is still there
+  assert connack.sessionPresent == True
   aclient.disconnect()
   bclient.disconnect()
 
