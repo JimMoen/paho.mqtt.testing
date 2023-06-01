@@ -56,7 +56,7 @@ class TestConnect():
         # According to the sepc,  If the protocol name is incorrect the Server MAY disconnect the Client
         assert e.value.args[0] == 'connect was Connacks(DUP=False, QoS=0, Retain=False, Session present=False, ReturnCode=1)' or e.value.args[0] == 'connect failed - socket closed, no connack'
     # [MQTT-3.1.2-2] Unacceptable protocol level
-    @pytest.mark.skip(strict=True, reason='Emqx defaults to V5 error handling when protocol version error occurs')
+    @pytest.mark.skip(reason='Emqx defaults to V5 error handling when protocol version error occurs')
     def test_proto_level(self):
         callback = Callbacks()
         client = mqtt_client.Client("myclientid", callback)
