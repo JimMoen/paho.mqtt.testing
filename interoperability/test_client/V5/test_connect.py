@@ -236,7 +236,7 @@ def test_will_retain():
 
   cleanRetained(host, port)
 
-@pytest.mark.skip(strict=True, reason='This is the client content')
+@pytest.mark.skip(reason='This is the client content')
 def test_username_flag():
   # [MQTT-3.1.2-16]
   connect = MQTTV5.Connects()
@@ -270,7 +270,7 @@ def test_username_flag():
   assert response.reasonCode.value == 130
 
 
-@pytest.mark.skip(strict=True, reason='This is the client content')
+@pytest.mark.skip(reason='This is the client content')
 def test_password_flag():
   # [MQTT-3.1.2-18]
   connect = MQTTV5.Connects()
@@ -545,7 +545,7 @@ def test_will_topic():
   #   mqtt_client.main.sendtosocket(sock, connect.pack())
   #   MQTTV5.unpackPacket(MQTTV5.getPacket(sock))
 
-@pytest.mark.skip(strict=True, reason='server not supported')
+@pytest.mark.skip(reason='server not supported')
 def test_username():
   # [MQTT-3.1.3-12]
   with pytest.raises(Exception):

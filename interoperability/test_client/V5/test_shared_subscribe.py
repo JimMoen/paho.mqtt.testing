@@ -267,7 +267,7 @@ def test_overlapping_subscription(base_wait_for):
   assert callback.messages[0][1] == b'test_overlapping_subscription_1'
   assert callback.messages[0][2] == 1
 
-@pytest.mark.skip(strict=True, reason='server not supported')
+@pytest.mark.skip(reason='server not supported')
 def test_subscriptions_to_both_shared_and_non_shared():
   ## Each Shared Subscription is independent from any other. It is possible to have two Shared Subscriptions with overlapping filters. In such cases a message that matches both Shared Subscriptions will be processed separately by both of them. If a Client has a Shared Subscription and a Non‑shared Subscription and a message matches both of them, the Client will receive a copy of the message by virtue of it having the Non‑shared Subscription. A second copy of the message will be delivered to one of the subscribers to the Shared Subscription, and this could result in a second copy being sent to this Client.
   aclient.connect(host=host, port=port, cleanstart=True)
