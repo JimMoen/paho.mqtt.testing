@@ -53,5 +53,3 @@ def test_unsubscribe_actions():
   assert len(callback2.messages) == 2
   assert callback2.messages[0][0] in [topics[2], topics[3]]
   assert callback2.messages[1][0] in [topics[2], topics[3]]
-
-  

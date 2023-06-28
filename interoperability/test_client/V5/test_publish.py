@@ -393,3 +393,20 @@ def test_maximum_packet_size(base_wait_for, base_sleep, base_socket_timeout):
   waitfor(callback.disconnects, 1, 9 * base_wait_for)
   assert len(callback.disconnects) == 1
   assert callback.disconnects[0]["reasonCode"].value == 149
+
+
+def test_pub_sub_from_different_client_qos222():
+    # aclient as suber to receive message
+    aclient.connect(host=host, port=port, cleanstart=True)
+    # bclient as puber to send message
+    bclient.connect(host=host, port=port, cleanstart=True)
+
+    topic = 'test/1'
+    payload = b'test_payload_from_any_puber'
+    aclient.subscribe([topic], [MQTTV5.SubscribeOptions(QoS=2)])
+    bclient.subscribe([topic], [MQTTV5.SubscribeOptions(QoS=2)])
+
+    bclient.publish(topic, payload, 2)
+    waitfor(callback.messages, 1, 3)
+    assert callback.messages[0][1] == payload # payload
+    assert callback.messages[0][2] == 2 # qos
